@@ -72,8 +72,8 @@
     }
 
     #disco-floor {
-      position: absolute; bottom: 18vh; left: 50%; transform: translateX(-50%);
-      width: 60%; height: 18vh;
+      position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%);
+      width: 65%; height: 160px;
       display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(3, 1fr);
       gap: 2px; background: #111; padding: 2px; z-index: 3; border-radius: 4px;
     }
@@ -88,20 +88,21 @@
     }
 
     #cat-dj {
-      position: absolute; bottom: 38vh; left: 50%; transform: translateX(-50%);
-      z-index: 8; width: 28vw; height: auto; min-width: 280px;
+      position: absolute; bottom: 290px; left: 50%; transform: translateX(-50%);
+      z-index: 8; width: 380px; height: auto; min-width: 240px;
       image-rendering: auto;
       filter: drop-shadow(0 0 16px rgba(255,0,255,0.7));
     }
 
     /* HUGE speakers */
     .speaker-canvas {
-      position: absolute; bottom: 18vh;
+      position: absolute; bottom: 200px;
       z-index: 7;
+      width: 220px; height: 300px;
       animation: speakerPulse 0.1s ease-in-out infinite alternate;
     }
-    #spk-left  { left: -10px; width: 16vw; height: 22vw; min-width: 160px; min-height: 200px; }
-    #spk-right { right: -10px; width: 16vw; height: 22vw; min-width: 160px; min-height: 200px; }
+    #spk-left  { left: -10px; }
+    #spk-right { right: -10px; }
     @keyframes speakerPulse {
       0%   { transform: scale(1);    filter: drop-shadow(0 0 8px rgba(255,0,255,0.5)); }
       100% { transform: scale(1.06); filter: drop-shadow(0 0 30px rgba(255,0,255,1)) drop-shadow(0 0 14px rgba(0,255,255,0.7)); }
@@ -110,12 +111,12 @@
     /* Crowd - tall, wobbling */
     #crowd-wrap {
       position: absolute; bottom: 0; left: 0; right: 0;
-      height: 38vh; z-index: 5; pointer-events: none;
+      height: 260px; z-index: 5; pointer-events: none;
       display: flex;
     }
     .crowd-canvas {
       position: absolute; bottom: 0;
-      height: 38vh;
+      height: 260px;
     }
     #crowd1 {
       left: 0; width: 100%;
@@ -295,7 +296,7 @@ function drawCrowd(canvasId, flip) {
   const img = new Image();
   img.onload = () => {
     canvas.width  = scene.offsetWidth || window.innerWidth;
-    canvas.height = Math.round(window.innerHeight * 0.38);
+    canvas.height = 260;
     ctx.save();
     if (flip) { ctx.scale(-1,1); ctx.drawImage(img, -canvas.width, 0, canvas.width, canvas.height); }
     else { ctx.drawImage(img, 0, 0, canvas.width, canvas.height); }
