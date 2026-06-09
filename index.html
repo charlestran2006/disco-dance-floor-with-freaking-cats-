@@ -65,8 +65,8 @@
     }
 
     #disco-floor {
-      position: absolute; bottom: 155px; left: 50%; transform: translateX(-50%);
-      width: 55%; height: 160px;
+      position: absolute; bottom: 180px; left: 50%; transform: translateX(-50%);
+      width: 65%; height: 160px;
       display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(3, 1fr);
       gap: 2px; background: #111; padding: 2px; z-index: 3; border-radius: 4px;
     }
@@ -327,7 +327,6 @@ drawCrowd('crowd2', true);
 const CAT_URLS = ['images/cat1.png','images/cat2.png','images/cat3.png','images/cat4.png','images/cat5.png'];
 const cats = [];
 const GRAVITY = 0.38, BOUNCE = 0.52;
-const FLOOR_Y = () => scene.offsetHeight - 295;
 
 function spawnCat(startX) {
   const img = document.createElement('img');
@@ -364,23 +363,55 @@ document.addEventListener('touchmove', e => {
 document.addEventListener('mouseup',  () => { cats.forEach(c => { if(c.dragging){c.dragging=false;c.vx=c.throwVx;c.vy=c.throwVy;} }); });
 document.addEventListener('touchend', () => { cats.forEach(c => { if(c.dragging){c.dragging=false;c.vx=c.throwVx;c.vy=c.throwVy;} }); });
 
+function getFloorTop() {
+  const floorEl = document.getElementById('disco-floor');
+  if (!floorEl) return scene.offsetHeight - 200;
+  const rect = floorEl.getBoundingClientRect();
+  const sceneRect = scene.getBoundingClientRect();
+  return rect.top - sceneRect.top;
+}
+
 function animate() {
-  const W=scene.offsetWidth, FY=FLOOR_Y(), H=scene.offsetHeight;
+  const W = scene.offsetWidth;
+  const H = scene.offsetHeight;
+  const floorTop = getFloorTop();
+
   cats.forEach(cat => {
     if (cat.dragging) return;
-    cat.vy+=GRAVITY; cat.x+=cat.vx; cat.y+=cat.vy;
-    // Floor bounce
-    if (cat.y>=FY) { cat.y=FY; cat.vy*=-BOUNCE; cat.vx*=0.9; if(Math.abs(cat.vy)<0.8)cat.vy=0; }
-    // If cat falls off bottom of screen, loop to top with same momentum
-    if (cat.y > H + 20) {
+    cat.vy += GRAVITY;
+    cat.x += cat.vx;
+    cat.y += cat.vy;
+
+    // Check if cat overlaps the disco floor (center x within floor bounds)
+    const floorEl = document.getElementById('disco-floor');
+    const floorRect = floorEl.getBoundingClientRect();
+    const sceneRect = scene.getBoundingClientRect();
+    const floorLeft = floorRect.left - sceneRect.left;
+    const floorRight = floorRect.right - sceneRect.left;
+    const catCenterX = cat.x + 45;
+
+    const onFloor = catCenterX >= floorLeft && catCenterX <= floorRight;
+
+    if (onFloor && cat.y + 90 >= floorTop && cat.vy > 0) {
+      cat.y = floorTop - 90;
+      cat.vy *= -BOUNCE;
+      cat.vx *= 0.9;
+      if (Math.abs(cat.vy) < 0.8) cat.vy = 0;
+    }
+
+    // Loop: if cat falls off bottom of screen, respawn at top
+    if (cat.y > H + 10) {
       cat.y = -100;
       cat.x = Math.random() * (W - 90);
-      // keep vx, reset vy to small downward
+      cat.vx = (Math.random() - 0.5) * 5;
       cat.vy = 2 + Math.random() * 3;
     }
-    if (cat.x<0) { cat.x=0; cat.vx*=-0.7; }
-    if (cat.x>W-90) { cat.x=W-90; cat.vx*=-0.7; }
-    cat.el.style.left=cat.x+'px'; cat.el.style.top=cat.y+'px';
+
+    if (cat.x < 0) { cat.x = 0; cat.vx *= -0.7; }
+    if (cat.x > W - 90) { cat.x = W - 90; cat.vx *= -0.7; }
+
+    cat.el.style.left = cat.x + 'px';
+    cat.el.style.top  = cat.y + 'px';
   });
   requestAnimationFrame(animate);
 }
