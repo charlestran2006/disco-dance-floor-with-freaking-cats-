@@ -12,6 +12,13 @@
       position: relative; overflow: hidden;
       font-family: sans-serif; background: #000;
     }
+    #bg-gif {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      opacity: 0.5;
+    }
 
     #disco-ball-wrap {
       position: absolute; top: 0; left: 50%;
@@ -179,6 +186,7 @@
 </head>
 <body>
 <div id="scene">
+  <img id="bg-gif" src="images/bg.gif" alt="" />
 
   <div id="title">★ CAT DISCO ★</div>
 
@@ -394,9 +402,9 @@ function animate() {
 
     if (onFloor && cat.y + 90 >= floorTop && cat.vy > 0) {
       cat.y = floorTop - 90;
-      cat.vy *= -BOUNCE;
-      cat.vx *= 0.9;
-      if (Math.abs(cat.vy) < 0.8) cat.vy = 0;
+      // Keep at least a minimum bounce so they never stop
+      cat.vy = Math.min(cat.vy * -BOUNCE, -6);
+      cat.vx *= 0.98; // barely any friction
     }
 
     // Loop: if cat falls off bottom of screen, respawn at top
