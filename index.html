@@ -25,7 +25,7 @@
     }
 
     .wide-beam {
-      position: absolute; top: 0; pointer-events: none; z-index: 4;
+      position: absolute; top: 0; pointer-events: none; z-index: 15;
       clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
       transform-origin: top center; opacity: 0.68;
       animation: wideBeamSweep var(--sw, 4s) ease-in-out infinite alternate;
@@ -36,7 +36,7 @@
     }
 
     .line-beam {
-      position: absolute; width: 2px; pointer-events: none; z-index: 6;
+      position: absolute; width: 2px; pointer-events: none; z-index: 15;
       transform-origin: top center;
       animation: lineBeamSweep var(--sw, 3s) ease-in-out infinite alternate,
                  lineBeamBlink var(--blink, 0.22s) step-end infinite;
@@ -50,7 +50,7 @@
     }
 
     .side-beam {
-      position: absolute; height: 2px; pointer-events: none; z-index: 6;
+      position: absolute; height: 2px; pointer-events: none; z-index: 15;
       animation: sideBeamSweep var(--sw, 2.5s) ease-in-out infinite alternate,
                  sideBeamBlink var(--blink, 0.18s) step-end infinite;
     }
@@ -81,9 +81,10 @@
     }
 
     #cat-dj {
-      position: absolute; bottom: 300px; left: 50%; transform: translateX(-50%);
-      z-index: 8; width: 180px;
-      filter: drop-shadow(0 0 12px rgba(255,0,255,0.55));
+      position: absolute; bottom: 315px; left: 50%; transform: translateX(-50%);
+      z-index: 8; width: 380px; height: auto;
+      image-rendering: auto;
+      filter: drop-shadow(0 0 16px rgba(255,0,255,0.7));
     }
 
     /* HUGE speakers */
@@ -102,12 +103,12 @@
     /* Crowd - tall, wobbling */
     #crowd-wrap {
       position: absolute; bottom: 0; left: 0; right: 0;
-      height: 280px; z-index: 5; pointer-events: none;
+      height: 420px; z-index: 5; pointer-events: none;
       display: flex;
     }
     .crowd-canvas {
       position: absolute; bottom: 0;
-      height: 280px;
+      height: 420px;
     }
     #crowd1 {
       left: 0; width: 100%;
@@ -299,7 +300,7 @@ function drawCrowd(canvasId, flip) {
   const img = new Image();
   img.onload = () => {
     canvas.width  = scene.offsetWidth || window.innerWidth;
-    canvas.height = 280;
+    canvas.height = 420;
     ctx.save();
     if (flip) { ctx.scale(-1,1); ctx.drawImage(img, -canvas.width, 0, canvas.width, canvas.height); }
     else { ctx.drawImage(img, 0, 0, canvas.width, canvas.height); }
@@ -364,11 +365,19 @@ document.addEventListener('mouseup',  () => { cats.forEach(c => { if(c.dragging)
 document.addEventListener('touchend', () => { cats.forEach(c => { if(c.dragging){c.dragging=false;c.vx=c.throwVx;c.vy=c.throwVy;} }); });
 
 function animate() {
-  const W=scene.offsetWidth, FY=FLOOR_Y();
+  const W=scene.offsetWidth, FY=FLOOR_Y(), H=scene.offsetHeight;
   cats.forEach(cat => {
     if (cat.dragging) return;
     cat.vy+=GRAVITY; cat.x+=cat.vx; cat.y+=cat.vy;
+    // Floor bounce
     if (cat.y>=FY) { cat.y=FY; cat.vy*=-BOUNCE; cat.vx*=0.9; if(Math.abs(cat.vy)<0.8)cat.vy=0; }
+    // If cat falls off bottom of screen, loop to top with same momentum
+    if (cat.y > H + 20) {
+      cat.y = -100;
+      cat.x = Math.random() * (W - 90);
+      // keep vx, reset vy to small downward
+      cat.vy = 2 + Math.random() * 3;
+    }
     if (cat.x<0) { cat.x=0; cat.vx*=-0.7; }
     if (cat.x>W-90) { cat.x=W-90; cat.vx*=-0.7; }
     cat.el.style.left=cat.x+'px'; cat.el.style.top=cat.y+'px';
